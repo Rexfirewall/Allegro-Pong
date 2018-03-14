@@ -1,4 +1,6 @@
 #include <allegro5/allegro.h>
+#include <allegro5\allegro_audio.h>
+#include <allegro5\allegro_acodec.h>
 
 const float FPS = 60;
 const int SCREEN_W = 640;
@@ -24,12 +26,12 @@ int main()
 	ALLEGRO_BITMAP *bouncer2 = NULL;
 	ALLEGRO_BITMAP *Ball = NULL;
 
-	float bouncer_x = 600;
+	float bouncer_x = 580;
 	float bouncer_y = 200;
-	float bouncer2_x = 5;
-	float bouncer2_y = 40;
-	float Ball_x = 150;
-	float Ball_y = 150;
+	float bouncer2_x = 20;
+	float bouncer2_y = 200;
+	float Ball_x = 320;
+	float Ball_y = 240;
 	bool key[4] = { false, false, false, false };
 	bool key2[4] = { false, false, false, false };
 	bool redraw = true;
@@ -128,10 +130,12 @@ int main()
 
 			if (hit(Ball_x, Ball_y, 32, 32, bouncer_x, bouncer_y, 32, 100) == true) {
 				Ball_dx = -Ball_dx;
+				Ball_dy = -Ball_dy;
 			}
 
 			if (hit(Ball_x, Ball_y, 32, 32, bouncer2_x, bouncer2_y, 5, 40) == true) {
 				Ball_dx = -Ball_dx;
+				Ball_dy = -Ball_dy;
 			}
 
 			redraw = true;
@@ -141,14 +145,14 @@ int main()
 		}
 		else if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
 			switch (ev.keyboard.keycode) {
-			case ALLEGRO_KEY_UP:
+			/*case ALLEGRO_KEY_UP:
 				key[KEY_UP] = true;
 				break;
 
 			case ALLEGRO_KEY_DOWN:
 				key[KEY_DOWN] = true;
 				break;
-
+				*/
 			case ALLEGRO_KEY_LEFT:
 				key[KEY_LEFT] = true;
 				break;
@@ -156,19 +160,19 @@ int main()
 			case ALLEGRO_KEY_RIGHT:
 				key[KEY_RIGHT] = true;
 				break;
-
+				/*
 			case ALLEGRO_KEY_W:
 				key2[KEY_W] = true;
 				break;
-
+				*/
 			case ALLEGRO_KEY_A:
 				key2[KEY_A] = true;
 				break;
-
+				/*
 			case ALLEGRO_KEY_S:
 				key2[KEY_S] = true;
 				break;
-
+				*/
 			case ALLEGRO_KEY_D:
 				key2[KEY_D] = true;
 				break;
@@ -176,6 +180,7 @@ int main()
 		}
 		else if (ev.type == ALLEGRO_EVENT_KEY_UP) {
 			switch (ev.keyboard.keycode) {
+				
 			case ALLEGRO_KEY_UP:
 				key[KEY_UP] = false;
 				break;
@@ -183,7 +188,7 @@ int main()
 			case ALLEGRO_KEY_DOWN:
 				key[KEY_DOWN] = false;
 				break;
-
+				/*
 			case ALLEGRO_KEY_LEFT:
 				key[KEY_LEFT] = false;
 				break;
@@ -191,23 +196,23 @@ int main()
 			case ALLEGRO_KEY_RIGHT:
 				key[KEY_RIGHT] = false;
 				break;
-
+				*/
 			case ALLEGRO_KEY_W:
 				key2[KEY_W] = false;
 				break;
-
+				/*
 			case ALLEGRO_KEY_A:
 				key2[KEY_A] = false;
 				break;
-
+				*/
 			case ALLEGRO_KEY_S:
 				key2[KEY_S] = false;
 				break;
-
+				/*
 			case ALLEGRO_KEY_D:
 				key2[KEY_D] = false;
 				break;
-
+				*/
 			case ALLEGRO_KEY_ESCAPE:
 				doexit = true;
 				break;
@@ -246,7 +251,7 @@ int main()
 
 
 bool hit(int x1, int y1, int h1, int w1, int x2, int y2, int h2, int w2) {
-	if (x1 + w1 > x2 && x2 + w2 > x1)
+	if ((x1 + w1 > x2) && (x1 < w2 + x1) && (y1 + h1 > y2) && (y1 < h2 + y2))
 		return true;
 	else
 		return false;
