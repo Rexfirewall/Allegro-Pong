@@ -10,11 +10,11 @@ const int BOUNCER2_SIZE = 32;
 bool hit(int x1, int y1, int h1, int w1, int x2, int y2, int h2, int w2);
 
 enum MYKEYS {
-	KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT
+	KEY_UP, KEY_DOWN
 };
 
 enum MYKEYS2 {
-	KEY_W, KEY_A, KEY_S, KEY_D
+	KEY_W, KEY_S
 };
 
 int main()
@@ -25,6 +25,8 @@ int main()
 	ALLEGRO_BITMAP *bouncer = NULL;
 	ALLEGRO_BITMAP *bouncer2 = NULL;
 	ALLEGRO_BITMAP *Ball = NULL;
+	ALLEGRO_SAMPLE *HitSOU = NULL;
+	ALLEGRO_SAMPLE *BackGround = NULL;
 
 	float bouncer_x = 580;
 	float bouncer_y = 200;
@@ -42,6 +44,12 @@ int main()
 
 
 	al_init();
+	al_install_audio();
+	al_init_acodec_addon();
+	al_reserve_samples(2);
+
+	HitSOU = al_load_sample("yes-indeed.wav");
+	BackGround = al_load_sample("we_three_kings.ogg");
 
 	al_install_keyboard();
 	timer = al_create_timer(1.0 / FPS);
@@ -56,9 +64,11 @@ int main()
 	// color for Ball
 	al_set_target_bitmap(Ball);
 	al_clear_to_color(al_map_rgb(158, 48, 123));
+
 	// color for B
 	al_set_target_bitmap(bouncer);
 	al_clear_to_color(al_map_rgb(255, 0, 255));
+
 	// color for B2
 	al_set_target_bitmap(bouncer2);
 	al_clear_to_color(al_map_rgb(25, 330, 255));
@@ -77,10 +87,12 @@ int main()
 
 	al_start_timer(timer);
 
-
+	//al_play_sample(BackGround, 1, 0, 1, ALLEGRO_PLAYMODE_LOOP, NULL);
 
 	while (!doexit)
 	{
+
+
 		ALLEGRO_EVENT ev;
 		al_wait_for_event(event_queue, &ev);
 
@@ -93,28 +105,13 @@ int main()
 				bouncer_y += 4.0;
 			}
 
-			/*if (key[KEY_LEFT] && bouncer_x >= 4.0) {
-				bouncer_x -= 4.0;
-			}
-
-			if (key[KEY_RIGHT] && bouncer_x <= SCREEN_W - BOUNCER_SIZE - 4.0) {
-				bouncer_x += 4.0;
-			}*/
 			if (key2[KEY_W] && bouncer2_y >= 4.0) {
 				bouncer2_y -= 4.0;
 			}
 
-			/*if (key2[KEY_A] && bouncer2_y <= SCREEN_H - 100 - 4.0) {
-				bouncer2_x -= 4.0;
-			}
-			*/
 			if (key2[KEY_S] && bouncer2_y <= SCREEN_H - 100 - 4.0) {
 				bouncer2_y += 4.0;
 			}
-
-			/*if (key2[KEY_D] && bouncer2_x <= SCREEN_W - 100 - 4.0) {
-				bouncer2_x += 4.0;
-			}*/
 
 			if (Ball_x < 0 || Ball_x > 640 - 32) {
 				Ball_dx = -Ball_dx;
@@ -128,16 +125,27 @@ int main()
 			Ball_x += Ball_dx;
 			Ball_y += Ball_dy;
 
-			if (hit(Ball_x, Ball_y, 32, 32, bouncer_x, bouncer_y, 32, 100) == true) {
+
+			if (hit(Ball_x, Ball_y, 32, 32, bouncer_x, bouncer_y, 100, 32) == true) {
+				//al_play_sample(HitSOU, 1, 0, 1.5, ALLEGRO_PLAYMODE_ONCE, NULL);
 				Ball_dx = -Ball_dx;
-				Ball_dy = -Ball_dy;
+				//Ball_dy = -Ball_dy;
 			}
 
-			if (hit(Ball_x, Ball_y, 32, 32, bouncer2_x, bouncer2_y, 5, 40) == true) {
+			if (hit(Ball_x, Ball_y, 32, 32, bouncer2_x, bouncer2_y, 100, 32) == true) {
+				//al_play_sample(HitSOU, 1, 0, 1.5, ALLEGRO_PLAYMODE_ONCE, NULL);
 				Ball_dx = -Ball_dx;
-				Ball_dy = -Ball_dy;
+				//Ball_dy = -Ball_dy;
+
 			}
 
+		
+			if (hit(Ball_x, Ball_y, 32, 32, bouncer_x, bouncer_y || bouncer2_x, bouncer2_y, 100) == true) {
+				al_play_sample(HitSOU, 1, 0, 1.5, ALLEGRO_PLAYMODE_ONCE, NULL);
+				Ball_dx = -Ball_dx;
+				//Ball_dy = -Ball_dy;
+			}
+			//*/
 			redraw = true;
 		}
 		else if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
@@ -145,42 +153,27 @@ int main()
 		}
 		else if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
 			switch (ev.keyboard.keycode) {
-			/*case ALLEGRO_KEY_UP:
+			case ALLEGRO_KEY_UP:
 				key[KEY_UP] = true;
 				break;
 
 			case ALLEGRO_KEY_DOWN:
 				key[KEY_DOWN] = true;
 				break;
-				*/
-			case ALLEGRO_KEY_LEFT:
-				key[KEY_LEFT] = true;
-				break;
 
-			case ALLEGRO_KEY_RIGHT:
-				key[KEY_RIGHT] = true;
-				break;
-				/*
 			case ALLEGRO_KEY_W:
 				key2[KEY_W] = true;
 				break;
-				*/
-			case ALLEGRO_KEY_A:
-				key2[KEY_A] = true;
-				break;
-				/*
+
 			case ALLEGRO_KEY_S:
 				key2[KEY_S] = true;
 				break;
-				*/
-			case ALLEGRO_KEY_D:
-				key2[KEY_D] = true;
-				break;
+
 			}
 		}
 		else if (ev.type == ALLEGRO_EVENT_KEY_UP) {
 			switch (ev.keyboard.keycode) {
-				
+
 			case ALLEGRO_KEY_UP:
 				key[KEY_UP] = false;
 				break;
@@ -188,31 +181,16 @@ int main()
 			case ALLEGRO_KEY_DOWN:
 				key[KEY_DOWN] = false;
 				break;
-				/*
-			case ALLEGRO_KEY_LEFT:
-				key[KEY_LEFT] = false;
-				break;
 
-			case ALLEGRO_KEY_RIGHT:
-				key[KEY_RIGHT] = false;
-				break;
-				*/
+
 			case ALLEGRO_KEY_W:
 				key2[KEY_W] = false;
 				break;
-				/*
-			case ALLEGRO_KEY_A:
-				key2[KEY_A] = false;
-				break;
-				*/
+
 			case ALLEGRO_KEY_S:
 				key2[KEY_S] = false;
 				break;
-				/*
-			case ALLEGRO_KEY_D:
-				key2[KEY_D] = false;
-				break;
-				*/
+
 			case ALLEGRO_KEY_ESCAPE:
 				doexit = true;
 				break;
@@ -228,6 +206,8 @@ int main()
 		if (redraw && al_is_event_queue_empty(event_queue)) {
 			redraw = false;
 
+
+
 			al_clear_to_color(al_map_rgb(0, 0, 0));
 
 			al_draw_bitmap(bouncer, bouncer_x, bouncer_y, 0);
@@ -241,6 +221,7 @@ int main()
 	al_destroy_bitmap(bouncer2);
 	al_destroy_bitmap(Ball);
 	al_destroy_timer(timer);
+	al_destroy_sample(HitSOU);
 	al_destroy_display(display);
 	al_destroy_event_queue(event_queue);
 
@@ -251,8 +232,14 @@ int main()
 
 
 bool hit(int x1, int y1, int h1, int w1, int x2, int y2, int h2, int w2) {
-	if ((x1 + w1 > x2) && (x1 < w2 + x1) && (y1 + h1 > y2) && (y1 < h2 + y2))
+	if ((x1 + w1 > x2) && (x1 < x2 + w2) && (y1 + h1 > y2) && (y1 < h2 + y2))
 		return true;
 	else
 		return false;
+
+	/*if ((x1 + w1 > x2) && (x1 + x1 > w2) && (y1 + h1 > y2) && (y1 < h2 + y2))
+	return true;
+	else
+	return false;
+	*/
 }
